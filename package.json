@@ -1,0 +1,30 @@
+{
+  "name": "discord-plays-mc",
+  "version": "1.0.0",
+  "description": "Discord plays minecraft",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SrIzan10/discord-plays-mc.git"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SrIzan10/discord-plays-mc/issues"
+  },
+  "homepage": "https://github.com/SrIzan10/discord-plays-mc#readme",
+  "devDependencies": {
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "colorette": "^2.0.19",
+    "discord.js": "^14.7.1",
+    "mineflayer": "^4.6.0",
+    "prismarine-viewer": "^1.23.0"
+  }
+}
