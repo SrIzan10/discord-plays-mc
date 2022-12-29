@@ -3,7 +3,7 @@ import mineflayer from "mineflayer";
 import { mineflayer as mineflayerViewer } from "prismarine-viewer";
 import { Client, GatewayIntentBits } from "discord.js";
 import inventoryViewer from "mineflayer-web-inventory";
-import "dotenv/config"
+import "dotenv/config";
 
 const client = new Client({
 	intents: [
@@ -13,19 +13,24 @@ const client = new Client({
 	],
 });
 const bot = mineflayer.createBot({
-	host: "testingsrizan.aternos.me",
-	username: "YourMom",
-	port: 24311,
+	host: process.env.MC_HOST,
+	username: "TheBot",
+	// port: 24311,
 	version: "1.18.2",
 });
 
+let stopResponses: boolean = false
+
 client.on("messageCreate", async (message) => {
-	if (message.channel.id !== "1057648908630757426") return;
-	const items = await Promise.all(
-		bot.inventory.items().map((item) => {
-			return item.displayName;
-		})
-	);
+	if (
+		message.channel.id !== "1057648908630757426" &&
+		message.channel.id !== "1057744953545072710" &&
+		stopResponses === true
+	)
+		return;
+	const items = bot.inventory.items().map((item) => {
+		return item.displayName;
+	});
 	let entity;
 	switch (message.content) {
 		case "hold w":
@@ -74,7 +79,7 @@ client.on("messageCreate", async (message) => {
 			bot.setControlState("jump", true);
 			bot.setControlState("jump", false);
 			break;
-		case "press jump":
+		case "hold jump":
 			bot.setControlState("jump", true);
 			break;
 		case "attack":
@@ -92,7 +97,7 @@ client.on("messageCreate", async (message) => {
 			if (entity) {
 				bot.mount(entity);
 			} else {
-				bot.chat("no nearby objects");
+				bot.chat("No hay objetos cerca!");
 			}
 			break;
 		case "dismount":
@@ -115,13 +120,43 @@ client.on("messageCreate", async (message) => {
 			break;
 		case "items":
 			bot.chat(`${items.join(", ")}`);
-			break;	
+			break;
+		case "look left":
+			bot.look(bot.entity.yaw + 45, bot.entity.pitch);
+			break;
+		case "look right":
+			bot.look(bot.entity.yaw - 45, bot.entity.pitch);
+			break;
+		case "look up":
+			bot.look(bot.entity.yaw, bot.entity.pitch + 45);
+			break;
+		case "look down":
+			bot.look(bot.entity.yaw, bot.entity.pitch - 45);
+			break;
 	}
-	if (message.content.includes('execute') && message.author.id === '703974042700611634') {
-		bot.chat(message.content.replace('execute ', ''))
-		message.reply('ok')
+	if (
+		message.content.includes("execute") &&
+		message.author.id === "703974042700611634"
+	) {
+		const trimmed = message.content.replace("execute ", "")
+		switch (trimmed) {
+			case 'stop responses': {
+				stopResponses = true
+				message.reply('I\'ll stop responding to messages!')
+			} break;
+			case 'continue responding': {
+				stopResponses = false
+				message.reply('I\'ll continue responding...')
+			} break;
+			default: {
+				bot.chat(trimmed);
+				message.reply("ok");
+			} break;
+		}
 	}
-	console.log(`${colorette.bgYellow('MSG')} => message ${message.content} recieved`)
+	console.log(
+		`${colorette.bgYellow("MSG")} => message ${message.content} recieved`
+	);
 });
 client.on("ready", () =>
 	console.log(colorette.bgGreen("Logged onto Discord!"))
