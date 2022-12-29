@@ -24,7 +24,9 @@
   "dependencies": {
     "colorette": "^2.0.19",
     "discord.js": "^14.7.1",
+    "dotenv": "^16.0.3",
     "mineflayer": "^4.6.0",
+    "mineflayer-web-inventory": "^1.8.3",
     "prismarine-viewer": "^1.23.0"
   }
 }

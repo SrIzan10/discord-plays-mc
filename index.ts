@@ -1,26 +1,33 @@
 import * as colorette from "colorette";
 import mineflayer from "mineflayer";
 import { mineflayer as mineflayerViewer } from "prismarine-viewer";
-import { Client } from "discord.js";
+import { Client, GatewayIntentBits } from "discord.js";
+import inventoryViewer from "mineflayer-web-inventory";
+import "dotenv/config"
 
+const client = new Client({
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.MessageContent,
+	],
+});
 const bot = mineflayer.createBot({
-	host: "testingsrizan.aternos.me", // minecraft server ip
-	username: "YourMom", // minecraft username
-	// password: '12345678' // minecraft password, comment out if you want to log into online-mode=false servers
-	port: 24311, // only set if you need a port that isn't 25565
-	version: "1.18.2", // only set if you need a specific version or snapshot (ie: "1.8.9" or "1.16.5"), otherwise it's set automatically
-	// auth: 'mojang'              // only set if you need microsoft auth, then set this to 'microsoft'
+	host: "testingsrizan.aternos.me",
+	username: "YourMom",
+	port: 24311,
+	version: "1.18.2",
 });
 
-let target;
-
-bot.on("chat", async (username, message) => {
-	const items = await Promise.all(bot.inventory.items().map(item => {
-		return item.displayName
-	}))
-	target = bot.players[username].entity;
+client.on("messageCreate", async (message) => {
+	if (message.channel.id !== "1057648908630757426") return;
+	const items = await Promise.all(
+		bot.inventory.items().map((item) => {
+			return item.displayName;
+		})
+	);
 	let entity;
-	switch (message) {
+	switch (message.content) {
 		case "hold w":
 			bot.setControlState("forward", true);
 			break;
@@ -91,37 +98,42 @@ bot.on("chat", async (username, message) => {
 		case "dismount":
 			bot.dismount();
 			break;
-		case "move vehicle forward":
+		case "vehicle forward":
 			bot.moveVehicle(0.0, 1.0);
 			break;
-		case "move vehicle backward":
+		case "vehicle backward":
 			bot.moveVehicle(0.0, -1.0);
 			break;
-		case "move vehicle left":
+		case "vehicle left":
 			bot.moveVehicle(1.0, 0.0);
 			break;
-		case "move vehicle right":
+		case "vehicle right":
 			bot.moveVehicle(-1.0, 0.0);
 			break;
 		case "pos":
 			bot.chat(bot.entity.position.toString());
 			break;
-		case "yp":
-			bot.chat(`Yaw ${bot.entity.yaw}, pitch: ${bot.entity.pitch}`);
-			break;
 		case "items":
-			bot.chat(`${items.join(', ')}`)
-			break;
+			bot.chat(`${items.join(", ")}`);
+			break;	
 	}
+	if (message.content.includes('execute') && message.author.id === '703974042700611634') {
+		bot.chat(message.content.replace('execute ', ''))
+		message.reply('ok')
+	}
+	console.log(`${colorette.bgYellow('MSG')} => message ${message.content} recieved`)
 });
+client.on("ready", () =>
+	console.log(colorette.bgGreen("Logged onto Discord!"))
+);
 
 bot.on("login", () => {
-	console.log(colorette.bgGreen("Logged on!"));
+	console.log(colorette.bgGreen("Logged onto Minecraft!"));
+	client.login(process.env.TOKEN);
 });
 bot.once("spawn", () => {
 	mineflayerViewer(bot, { port: 3007, firstPerson: true });
+	inventoryViewer(bot);
 });
-
-// Log errors and kick reasons:
 bot.on("kicked", console.log);
 bot.on("error", console.log);
