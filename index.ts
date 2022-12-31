@@ -36,10 +36,10 @@ function movement(text: string) {
 				bot.setControlState("back", true);
 				break;
 			case "hold a":
-				bot.setControlState("left", true);
+				bot.setControlState("right", true);
 				break;
 			case "hold d":
-				bot.setControlState("right", true);
+				bot.setControlState("left", true);
 				break;
 			case "w":
 				bot.setControlState("forward", true);
@@ -54,15 +54,15 @@ function movement(text: string) {
 				}, 100);
 				break;
 			case "a":
-				bot.setControlState("left", true);
-				setTimeout(function () {
-					bot.setControlState("left", false);
-				}, 100);
-				break;
-			case "d":
 				bot.setControlState("right", true);
 				setTimeout(function () {
 					bot.setControlState("right", false);
+				}, 100);
+				break;
+			case "d":
+				bot.setControlState("left", true);
+				setTimeout(function () {
+					bot.setControlState("left", false);
 				}, 100);
 				break;
 			case "sprint":
@@ -100,7 +100,7 @@ function movement(text: string) {
 				bot.dismount();
 				break;
 			case "vehicle forward":
-				bot.moveVehicle(0.0, 1.0);
+				bot.moveVehicle(0, 1);
 				break;
 			case "vehicle backward":
 				bot.moveVehicle(0.0, -1.0);
@@ -146,18 +146,20 @@ client.on("messageCreate", async (message) => {
 				message.reply('I\'ll continue responding...')
 			} break;
 			case 'tp beginning': {
-				bot.chat('/tp TheBot 211 67 -68')
+				bot.chat('/tp TheBot 211 69 -68')
 				message.reply('Going to the beginning!')
 			} break;
-			case 'block user': {
-				const blockeduserid = trimmed.replace('block user ', '')
-				blocked.push(blockeduserid)
-				message.reply(`${blockeduserid} has been blocked off the event!`)
-			}
 			default: {
 				bot.chat(trimmed);
-				message.reply("ok");
+				if (!trimmed.includes('block user')) {
+					message.reply("ok");
+				}
 			} break;
+		}
+		if (trimmed.includes('block user')) {
+			const blockeduserid = trimmed.replace('block user ', '')
+			blocked.push(blockeduserid)
+			message.reply(`${blockeduserid} has been blocked off the event!`)
 		}
 	}
 	console.log(
