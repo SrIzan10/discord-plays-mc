@@ -20,20 +20,15 @@ const bot = mineflayer.createBot({
 });
 
 let stopResponses: boolean = false
+let blocked: Array<string> = []
 
-client.on("messageCreate", async (message) => {
-	if (message.author.id === client.user!.id) return
-	if (
-		message.channel.id !== "1057648908630757426" &&
-		message.channel.id !== "1057744953545072710"
-	) return;
-
+function movement(text: string) {
 	if (stopResponses !== true) {
 		const items = bot.inventory.items().map((item) => {
 			return item.displayName;
 		});
 		let entity;
-		switch (message.content) {
+		switch (text) {
 			case "hold w":
 				bot.setControlState("forward", true);
 				break;
@@ -124,6 +119,17 @@ client.on("messageCreate", async (message) => {
 				break;
 		}
 	}
+}
+
+client.on("messageCreate", async (message) => {
+	if (message.author.id === client.user!.id) return;
+	if (blocked.includes(message.author.id)) return;
+	if (
+		message.channel.id !== "1057648908630757426" &&
+		message.channel.id !== "1057744953545072710"
+	) return;
+
+	movement(message.content)
 
 	if (
 		message.content.includes("execute") &&
@@ -139,6 +145,15 @@ client.on("messageCreate", async (message) => {
 				stopResponses = false
 				message.reply('I\'ll continue responding...')
 			} break;
+			case 'tp beginning': {
+				bot.chat('/tp TheBot 211 67 -68')
+				message.reply('Going to the beginning!')
+			} break;
+			case 'block user': {
+				const blockeduserid = trimmed.replace('block user ', '')
+				blocked.push(blockeduserid)
+				message.reply(`${blockeduserid} has been blocked off the event!`)
+			}
 			default: {
 				bot.chat(trimmed);
 				message.reply("ok");
@@ -158,6 +173,10 @@ bot.on("login", () => {
 	console.log(colorette.bgGreen("Logged onto Minecraft!"));
 	client.login(process.env.TOKEN);
 });
+bot.on('chat', (username, message) => {
+	if (username === bot.username) return;
+	movement(message)
+})
 bot.once("spawn", () => {
 	mineflayerViewer(bot, { port: 3007, firstPerson: true });
 	inventoryViewer(bot);
